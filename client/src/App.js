@@ -19,6 +19,7 @@ import CartPage from "./pages/CartPage";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import CreateCategory from "./pages/Admin/CreateCategory";
 import CreateProduct from "./pages/Admin/CreateProduct";
+import CreateCarousel from "./pages/Admin/CreateCarousel";
 import Users from "./pages/Admin/Users";
 import AdminOrders from "./pages/Admin/AdminOrders";
 import Product from "./pages/Admin/Products";
@@ -51,6 +52,7 @@ function App() {
         <Route path="admin" element={<AdminDashboard />} />
         <Route path="admin/orders" element={<AdminOrders />} />
         <Route path="admin/createcategory" element={<CreateCategory />} />
+        <Route path="admin/craousel" element={<CreateCarousel />} />
         <Route path="admin/createproduct" element={<CreateProduct />} />
         <Route path="admin/product" element={<Product />} />
         <Route path="admin/product/:slug" element={<UpdateProduct />} />

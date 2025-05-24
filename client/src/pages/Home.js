@@ -7,7 +7,10 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import Layout from "./../commponets/Layouts/Layout";
 import { AiOutlineReload } from "react-icons/ai";
+import Slider from "react-slick";
 import "../styles/Homepage.css";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -20,6 +23,7 @@ const HomePage = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [carouselItems, setCarouselItems] = useState([]);
 
   const getAllCategory = async () => {
     try {
@@ -32,9 +36,19 @@ const HomePage = () => {
     }
   };
 
+  const getCarouselItems = async () => {
+    try {
+      const { data } = await axios.get("/api/v1/craousel");
+      setCarouselItems(data);
+    } catch (error) {
+      console.log("Error fetching carousel items:", error);
+    }
+  };
+
   useEffect(() => {
     getAllCategory();
     getTotal();
+    getCarouselItems();
   }, []);
 
   const getAllProducts = async () => {
@@ -105,13 +119,37 @@ const HomePage = () => {
     }
   };
 
+  const carouselSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 2000,
+  };
+
   return (
     <Layout title={"All Products - Best Offers"}>
-      <img
-        src="/images/banner.png"
-        className="banner-img img-fluid w-100 mb-4"
-        alt="bannerimage"
-      />
+      {carouselItems.length > 0 ? (
+        <Slider {...carouselSettings} className="mb-4">
+          {carouselItems.map((item, index) => (
+            <div key={index} className="carousel-slide">
+              <img
+                src={`/api/v1/craousel/image/${item._id}`}
+                alt="carousel"
+                className="banner-img img-fluid w-100"
+              />
+            </div>
+          ))}
+        </Slider>
+      ) : (
+        <img
+          src="/images/banner.png"
+          className="banner-img img-fluid w-100 mb-4"
+          alt="bannerimage"
+        />
+      )}
 
       <div className="container-fluid row mt-3 home-page">
         <div className="d-md-none text-end mb-3">

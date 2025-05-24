@@ -46,9 +46,9 @@ const CreateProduct = () => {
       productData.append("offerings",offerings);
       productData.append("price", price);
       productData.append("quantity", quantity);
-      productData.append("photo", photo);
+      productData.append("image", photo);
       productData.append("category", category);
-      const { data } = axios.post(
+      const { data } = await axios.post(
         "/api/v1/product/create-product",
         productData
       );

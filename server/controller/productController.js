@@ -1,6 +1,8 @@
 import productModel from "../models/productModel.js";
 import categoryModel from "../models/categorymodel.js";
 import orderModel from "../models/orderModel.js";
+import categorymodel from "../models/categorymodel.js";
+import CarouselItem from "../models/craousel.js";
 
 import fs from "fs";
 import slugify from "slugify";
@@ -19,8 +21,107 @@ var gateway = new braintree.BraintreeGateway({
   privateKey: process.env.BRAINTREE_PRIVATE_KEY,
 });
 
+//Craousel 
+export const getCarouselItemsController = async (req, res) => {
+  try {
+    const items = await CarouselItem.find().select("-image.data");
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
 
+export const getCarouselImageController = async (req, res) => {
+  try {
+    const item = await CarouselItem.findById(req.params.id).select("image");
+    if (item && item.image && item.image.data) {
+      res.set("Content-Type", item.image.contentType);
+      return res.status(200).send(item.image.data);
+    } else {
+      return res.status(404).json({ error: "Image not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
 
+import formidable from "formidable";
+
+export const createCarouselItemController = async (req, res) => {
+  const form = new formidable.IncomingForm({ keepExtensions: true });
+  form.parse(req, async (err, fields, files) => {
+    console.log("Files received:", files);
+    if (err) {
+      return res.status(400).json({ error: "Image could not be uploaded" });
+    }
+    try {
+      const newItem = new CarouselItem();
+      if (files.image) {
+        if (files.image.size > 10000000) {
+          return res.status(400).json({ error: "Image should be less than 1MB" });
+        }
+        newItem.image.data = fs.readFileSync(files.image.path);
+        newItem.image.contentType = files.image.type;
+      } else {
+        return res.status(400).json({ error: "Image is required" });
+      }
+      await newItem.save();
+      res.status(201).json({ success: true, message: "Carousel item created", item: newItem });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+};
+
+export const updateCarouselItemController = async (req, res) => {
+  const form = new formidable.IncomingForm();
+  form.parse(req, async (err, fields, files) => {
+    if (err) {
+      return res.status(400).json({ error: "Image could not be uploaded" });
+    }
+    try {
+      const { id } = req.params;
+      const updatedData = {};
+      if (files.image) {
+        if (files.image.size > 1000000) {
+          return res.status(400).json({ error: "Image should be less than 1MB" });
+        }
+        updatedData.image = {};
+        updatedData.image.data = fs.readFileSync(files.image.path);
+        updatedData.image.contentType = files.image.type;
+      }
+      const updatedItem = await CarouselItem.findByIdAndUpdate(
+        id,
+        updatedData,
+        { new: true }
+      );
+      if (!updatedItem) {
+        return res.status(404).json({ error: "Carousel item not found" });
+      }
+      res.json({ success: true, message: "Carousel item updated", item: updatedItem });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+};
+
+export const deleteCarouselItemController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedItem = await CarouselItem.findByIdAndDelete(id);
+    if (!deletedItem) {
+      return res.status(404).json({ error: "Carousel item not found" });
+    }
+    res.json({ success: true, message: "Carousel item deleted" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+//Create Product
 export const createProductController = async (req, res) => {
   try {
     const { name, description,offerings, price, category, quantity, shipping } =

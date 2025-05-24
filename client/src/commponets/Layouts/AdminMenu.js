@@ -21,6 +21,9 @@ const AdminMenu = () => {
         <NavLink to="/dashboard/admin/users" className="list-group-item list-group-item-action">
           <i className="fas fa-users me-2" style={{ color: "red" }}></i> Users
         </NavLink>
+        <NavLink to="/dashboard/admin/craousel" className="list-group-item list-group-item-action">
+          <i className="fas fa-users me-2" style={{ color: "red" }}></i> Create Craousel
+        </NavLink>
       </div>
     </div>
   );
